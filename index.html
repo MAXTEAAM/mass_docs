@@ -295,8 +295,8 @@ header{height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;backg
   .rm-cta{font-size:10.5px;}
   .fab{width:48px;height:48px;bottom:16px;right:16px;}
   .fab img{width:28px;height:28px;}
-  .cf{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100% !important;max-height:100vh !important;height:100vh !important;border-radius:0;border:none;z-index:1000;}
-  .cf.expanded{width:100% !important;max-height:100vh !important;}
+  .cf{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100% !important;max-height:100vh !important;max-height:100dvh !important;height:100vh !important;height:100dvh !important;border-radius:0;border:none;z-index:1000;}
+  .cf.expanded{width:100% !important;max-height:100vh !important;max-height:100dvh !important;}
   .cf-hd{padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));}
   .cf-av{width:32px;height:32px;}
   .cf-hd-title{font-size:13px;}
@@ -1055,6 +1055,34 @@ window.addEventListener('resize',function(){if(!isMobile())closeNav();});
     tracking=false;
     if(startX-curX>50)closeNav();
   });
+})();
+
+
+// ═══ Mobile keyboard fix — keep chat input visible ═══
+(function(){
+  if(!window.visualViewport)return;
+  function adjustChat(){
+    var cf=document.getElementById('cf');
+    if(!cf||!cf.classList.contains('open'))return;
+    if(window.innerWidth>768)return;
+    var h=window.visualViewport.height;
+    cf.style.height=h+'px';
+    cf.style.maxHeight=h+'px';
+    // scroll latest message into view after keyboard opens
+    var msgs=document.getElementById('msgs');
+    if(msgs)msgs.scrollTop=msgs.scrollHeight;
+  }
+  window.visualViewport.addEventListener('resize',adjustChat);
+  window.visualViewport.addEventListener('scroll',adjustChat);
+  // also when chat opens
+  var inp=document.getElementById('inp');
+  if(inp){
+    inp.addEventListener('focus',function(){setTimeout(adjustChat,300);});
+    inp.addEventListener('blur',function(){
+      var cf=document.getElementById('cf');
+      if(cf&&window.innerWidth<=768){cf.style.height='';cf.style.maxHeight='';}
+    });
+  }
 })();
 
 </script>
