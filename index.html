@@ -333,6 +333,11 @@ header{height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;backg
 }
 
 </style>
+<script>
+// Stubs so oninput/onblur never error before the main script runs
+window.doSearch = function(){};
+window.hideSearch = function(){};
+</script>
 </head>
 <body>
 
@@ -728,6 +733,7 @@ function removeThinking(){var t=document.getElementById('thinking');if(t)t.remov
 
 // ── FAB / CHAT ────────────────────────────────────────────────
 function toggleChat(){
+  if(typeof dismissPopup==='function') dismissPopup();
   var cf=document.getElementById('cf');
   cf.classList.toggle('open');
   if(cf.classList.contains('open')){
@@ -982,12 +988,7 @@ if(_popupInner) _popupInner.querySelector('.ast-popup-inner').onclick = function
   dismissPopup();
   toggleChat();
 };
-// hide popup when chat opens
-var _origToggle = toggleChat;
-toggleChat = function(){
-  dismissPopup();
-  _origToggle();
-};
+// hide popup when chat opens — handled directly in toggleChat() above
 // Update popup text on lang change
 function updatePopupLang(){
   var fr = currentLang === 'fr';
@@ -1060,7 +1061,7 @@ window.addEventListener('resize',function(){if(!isMobile())closeNav();});
 
 
 // ═══ Header search (desktop + mobile) ═══
-function doSearch(q){
+window.doSearch = function(q){
   var srd=document.getElementById('srd');
   if(!srd)return;
   q=(q||'').trim();
@@ -1093,13 +1094,13 @@ function doSearch(q){
       +'</div>';
   }).join('');
   srd.classList.add('show');
-}
-function hideSearch(){
+};
+window.hideSearch = function(){
   setTimeout(function(){
     var srd=document.getElementById('srd');
     if(srd)srd.classList.remove('show');
   },180);
-}
+};
 
 // ═══ Mobile keyboard fix — keep chat input visible ═══
 (function(){
