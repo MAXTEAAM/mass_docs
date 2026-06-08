@@ -1058,6 +1058,49 @@ window.addEventListener('resize',function(){if(!isMobile())closeNav();});
 })();
 
 
+
+// ═══ Header search (desktop + mobile) ═══
+function doSearch(q){
+  var srd=document.getElementById('srd');
+  if(!srd)return;
+  q=(q||'').trim();
+  if(!q){srd.classList.remove('show');srd.innerHTML='';return;}
+  var qL=q.toLowerCase();
+  var words=qL.split(/\s+/).filter(function(w){return w.length>1;});
+  var scored=INDEX.map(function(e){
+    var s=0;
+    if(e.text.indexOf(qL)!==-1)s+=40;
+    var hL=e.heading.toLowerCase();
+    words.forEach(function(w){
+      if(hL.indexOf(w)!==-1)s+=20;
+      if(e.text.indexOf(w)!==-1)s+=3;
+    });
+    return{e:e,s:s};
+  }).filter(function(x){return x.s>0;})
+    .sort(function(a,b){return b.s-a.s;})
+    .slice(0,12);
+  if(!scored.length){
+    srd.innerHTML='<div class="sri"><div class="sri-p">No results for "'+q.replace(/[<>]/g,'')+'"</div></div>';
+    srd.classList.add('show');
+    return;
+  }
+  srd.innerHTML=scored.map(function(x){
+    var sec=SECTIONS[x.e.si];
+    var secTitle=currentLang==='fr'&&sec.fr?sec.fr.title:sec.title;
+    return'<div class="sri" onmousedown="loadSec('+x.e.si+');hideSearch();">'
+      +'<div class="sri-t">'+sec.icon+' '+x.e.heading+'</div>'
+      +'<div class="sri-p">'+secTitle+'</div>'
+      +'</div>';
+  }).join('');
+  srd.classList.add('show');
+}
+function hideSearch(){
+  setTimeout(function(){
+    var srd=document.getElementById('srd');
+    if(srd)srd.classList.remove('show');
+  },180);
+}
+
 // ═══ Mobile keyboard fix — keep chat input visible ═══
 (function(){
   if(!window.visualViewport)return;
